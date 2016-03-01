@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 public class SqLiteRequestService extends IntentService {
     public static final String ACTION_INSERT = "action_insert";
-    public static final String CONTENT_URI = "content_uri";
     public static final String CONTENT_VALUES = "content_values";
     public static final String ACTION_MOVE = "action_move";
     public static final String MOVED_SQL_ID = "movedSqlId";
