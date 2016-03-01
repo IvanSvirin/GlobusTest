@@ -1,4 +1,4 @@
-package com.example.ivansv.globustest;
+package com.example.ivansv.globustest.model;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -18,62 +18,42 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created by ivansv on 25.02.2016.
- */
-public class ExampleDataProvider extends AbstractDataProvider implements MyResultReceiver.Receiver{
+public class ExampleDataProvider extends AbstractDataProvider implements MyResultReceiver.Receiver {
     private Activity activity;
     private List<ConcreteData> mData;
-    private ConcreteData mLastRemovedData;
-    private int mLastRemovedPosition = -1;
-    private MyDataProvider myDataProvider;
     private MyResultReceiver myResultReceiver;
 
     public ExampleDataProvider(Activity activity) {
         this.activity = activity;
-        myDataProvider = new MyDataProvider();
+        MyDataProvider myDataProvider = new MyDataProvider();
         Cursor cursor = myDataProvider.query(MyDataContract.Notes.CONTENT_URI, null, null, null, null);
-        if (cursor.getCount() == 0) {
-            final String atoz = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            mData = new LinkedList<>();
-            ArrayList<ContentValues> cv = new ArrayList<>();
-            for (int i = 0; i < 2; i++) {
-                for (int j = 0; j < atoz.length(); j++) {
-                    final long id = mData.size();
-                    final int viewType = 0;
-                    final String text = Character.toString(atoz.charAt(j));
-                    final int swipeReaction = RecyclerViewSwipeManager.REACTION_CAN_SWIPE_UP |
-                            RecyclerViewSwipeManager.REACTION_CAN_SWIPE_DOWN;
-                    mData.add(new ConcreteData(id, viewType, text, swipeReaction, String.valueOf(id + 1L),
-                            String.valueOf(j + i * atoz.length())));
-                    ContentValues cVal = new ContentValues();
-                    cVal.put(MyDataContract.Notes.COLUMN_NAME_NOTE_TEXT, id + " - " + text);
-                    cVal.put(MyDataContract.Notes.COLUMN_NAME_PREVIOUS_NOTE_ID, String.valueOf(j + i * atoz.length()));
-                    cv.add(cVal);
+        if (cursor != null) {
+            if (cursor.getCount() == 0) {
+                final String atoz = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                mData = new LinkedList<>();
+                ArrayList<ContentValues> cv = new ArrayList<>();
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < atoz.length(); j++) {
+                        final long id = mData.size();
+                        final int viewType = 0;
+                        final String text = Character.toString(atoz.charAt(j));
+                        final int swipeReaction = RecyclerViewSwipeManager.REACTION_CAN_SWIPE_UP |
+                                RecyclerViewSwipeManager.REACTION_CAN_SWIPE_DOWN;
+                        mData.add(new ConcreteData(id, viewType, text, swipeReaction, String.valueOf(id + 1L),
+                                String.valueOf(j + i * atoz.length())));
+                        ContentValues cVal = new ContentValues();
+                        cVal.put(MyDataContract.Notes.COLUMN_NAME_NOTE_TEXT, id + " - " + text);
+                        cVal.put(MyDataContract.Notes.COLUMN_NAME_PREVIOUS_NOTE_ID, String.valueOf(j + i * atoz.length()));
+                        cv.add(cVal);
+                    }
                 }
+                cursor.close();
+                backgroundInsert(cv);
+            } else {
+                mData = new LinkedList<>();
+                backgroundLoad();
             }
-            cursor.close();
-            backgroundInsert(cv);
-        } else {
-            mData = new LinkedList<>();
-            backgroundLoad();
         }
-    }
-
-    private void backgroundLoad() {
-        myResultReceiver = new MyResultReceiver(new Handler());
-        myResultReceiver.setReceiver(this);
-        Intent loadIntent = new Intent(activity.getApplicationContext(), SqLiteRequestService.class);
-        loadIntent.setAction(SqLiteRequestService.ACTION_LOAD);
-        loadIntent.putExtra(MyResultReceiver.RECEIVER, myResultReceiver);
-        activity.getApplicationContext().startService(loadIntent);
-    }
-
-    private void backgroundInsert(ArrayList<ContentValues> cv) {
-        Intent insertIntent = new Intent(activity.getApplicationContext(), SqLiteRequestService.class);
-        insertIntent.setAction(SqLiteRequestService.ACTION_INSERT);
-        insertIntent.putExtra(SqLiteRequestService.CONTENT_VALUES, cv);
-        activity.getApplicationContext().startService(insertIntent);
     }
 
     @Override
@@ -86,29 +66,12 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
         if (index < 0 || index >= getCount()) {
             throw new IndexOutOfBoundsException("index = " + index);
         }
-
         return mData.get(index);
     }
 
     @Override
     public int undoLastRemoval() {
-        if (mLastRemovedData != null) {
-            int insertedPosition;
-            if (mLastRemovedPosition >= 0 && mLastRemovedPosition < mData.size()) {
-                insertedPosition = mLastRemovedPosition;
-            } else {
-                insertedPosition = mData.size();
-            }
-
-            mData.add(insertedPosition, mLastRemovedData);
-
-            mLastRemovedData = null;
-            mLastRemovedPosition = -1;
-
-            return insertedPosition;
-        } else {
-            return -1;
-        }
+        return 0;
     }
 
     @Override
@@ -156,8 +119,24 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
 
         final ConcreteData item = mData.remove(fromPosition);
         mData.add(toPosition, item);
-        mLastRemovedPosition = -1;
     }
+
+    private void backgroundLoad() {
+        myResultReceiver = new MyResultReceiver(new Handler());
+        myResultReceiver.setReceiver(this);
+        Intent loadIntent = new Intent(activity.getApplicationContext(), SqLiteRequestService.class);
+        loadIntent.setAction(SqLiteRequestService.ACTION_LOAD);
+        loadIntent.putExtra(MyResultReceiver.RECEIVER, myResultReceiver);
+        activity.getApplicationContext().startService(loadIntent);
+    }
+
+    private void backgroundInsert(ArrayList<ContentValues> cv) {
+        Intent insertIntent = new Intent(activity.getApplicationContext(), SqLiteRequestService.class);
+        insertIntent.setAction(SqLiteRequestService.ACTION_INSERT);
+        insertIntent.putExtra(SqLiteRequestService.CONTENT_VALUES, cv);
+        activity.getApplicationContext().startService(insertIntent);
+    }
+
 
     private void backgroundMove(String movedSqlId, String wasAfterMovedSqlId, String becameAfterMovedSqlId,
                                 String movedSqlPrevIdNew, String wasAfterMovedSqlPrevIdNew, String becameAfterMovedSqlPrevIdNew) {
@@ -174,11 +153,6 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
 
     @Override
     public void removeItem(int position) {
-        //noinspection UnnecessaryLocalVariable
-        final ConcreteData removedItem = mData.remove(position);
-
-        mLastRemovedData = removedItem;
-        mLastRemovedPosition = position;
     }
 
     public static final class ConcreteData extends Data implements Parcelable{
@@ -224,12 +198,11 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
 
         private static String makeText(long id, String text, int swipeReaction) {
             final StringBuilder sb = new StringBuilder();
-
             sb.append(id);
             sb.append(" - ");
             sb.append(text);
 
-            return sb.toString();
+            return String.valueOf(sb);
         }
 
         @Override
@@ -306,7 +279,6 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
         @Override
         public void onReceiveResult(int resultCode, Bundle data) {
             ArrayList<ConcreteData> receivedList = data.getParcelableArrayList(SqLiteRequestService.DATA_LIST);
-//            mData = new LinkedList<ConcreteData>();
             if (receivedList != null) {
                 for (ConcreteData cd : receivedList) {
                     mData.add(cd);

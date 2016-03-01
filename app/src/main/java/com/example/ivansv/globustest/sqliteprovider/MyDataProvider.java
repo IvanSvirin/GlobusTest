@@ -10,13 +10,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.HashMap;
 
-/**
- * Created by ivansv on 26.02.2016.
- */
 public class MyDataProvider extends ContentProvider {
     private static final int DATABASE_VERSION = 1;
     private static HashMap<String, String> sNotesProjectionMap;
@@ -29,7 +27,7 @@ public class MyDataProvider extends ContentProvider {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(MyDataContract.AUTHORITY, "notes", NOTES);
         sUriMatcher.addURI(MyDataContract.AUTHORITY, "notes/#", NOTES_ID);
-        sNotesProjectionMap = new HashMap<String, String>();
+        sNotesProjectionMap = new HashMap<>();
         for (int i = 0; i < MyDataContract.Notes.DEFAULT_PROJECTION.length; i++) {
             sNotesProjectionMap.put(
                     MyDataContract.Notes.DEFAULT_PROJECTION[i],
@@ -76,9 +74,9 @@ public class MyDataProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        String orderBy = null;
+        String orderBy;
         switch (sUriMatcher.match(uri)) {
             case NOTES:
                 qb.setTables(MyDataContract.Notes.TABLE_NAME);
@@ -88,23 +86,19 @@ public class MyDataProvider extends ContentProvider {
             case NOTES_ID:
                 qb.setTables(MyDataContract.Notes.TABLE_NAME);
                 qb.setProjectionMap(sNotesProjectionMap);
-                qb.appendWhere(MyDataContract.Notes._ID + "=" + uri.getPathSegments()
-                        .get(MyDataContract.Notes.NOTES_ID_PATH_POSITION));
-                orderBy = MyDataContract.Notes.DEFAULT_SORT_ORDER;
+                qb.appendWhere(MyDataContract.Notes._ID + "=" + uri.getPathSegments().get(MyDataContract.Notes.NOTES_ID_PATH_POSITION));
+                orderBy = sortOrder == null ? MyDataContract.Notes.DEFAULT_SORT_ORDER : sortOrder;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-//        Cursor c = db.query(DatabaseHelper.DATABASE_TABLE_NOTES, null, selection, selectionArgs, null, null, null);
-        Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
-//        c.setNotificationUri(getContext().getContentResolver(), uri);
-        return c;
+        return qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
     }
 
     @Nullable
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         switch (sUriMatcher.match(uri)) {
             case NOTES:
                 return MyDataContract.Notes.CONTENT_TYPE;
@@ -117,7 +111,7 @@ public class MyDataProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Uri insert(Uri uri, ContentValues initialValues) {
+    public Uri insert(@NonNull Uri uri, ContentValues initialValues) {
         if (sUriMatcher.match(uri) != NOTES) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -128,7 +122,7 @@ public class MyDataProvider extends ContentProvider {
         } else {
             values = new ContentValues();
         }
-        long rowId = -1;
+        long rowId;
         Uri rowUri = Uri.EMPTY;
         if (!values.containsKey(MyDataContract.Notes.COLUMN_NAME_NOTE_TEXT)) {
             values.put(MyDataContract.Notes.COLUMN_NAME_NOTE_TEXT, "");
@@ -141,13 +135,12 @@ public class MyDataProvider extends ContentProvider {
                 values);
         if (rowId > 0) {
             rowUri = ContentUris.withAppendedId(MyDataContract.Notes.CONTENT_ID_URI_BASE, rowId);
-//            getContext().getContentResolver().notifyChange(rowUri, null);
         }
         return rowUri;
     }
 
     @Override
-    public int delete(Uri uri, String where, String[] whereArgs) {
+    public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String finalWhere;
         int count;
@@ -165,12 +158,11 @@ public class MyDataProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-//        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         String finalWhere;
@@ -190,7 +182,6 @@ public class MyDataProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-//        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 }

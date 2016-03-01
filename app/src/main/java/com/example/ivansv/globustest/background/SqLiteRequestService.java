@@ -8,16 +8,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.os.ResultReceiver;
 
-import com.example.ivansv.globustest.ExampleDataProvider;
-import com.example.ivansv.globustest.MyResultReceiver;
+import com.example.ivansv.globustest.model.ExampleDataProvider;
+import com.example.ivansv.globustest.model.MyResultReceiver;
 import com.example.ivansv.globustest.sqliteprovider.MyDataContract;
 import com.example.ivansv.globustest.sqliteprovider.MyDataProvider;
 
 import java.util.ArrayList;
 
-/**
- * Created by ivansv on 27.02.2016.
- */
 public class SqLiteRequestService extends IntentService {
     public static final String ACTION_INSERT = "action_insert";
     public static final String CONTENT_URI = "content_uri";
@@ -32,7 +29,6 @@ public class SqLiteRequestService extends IntentService {
     public static final String ACTION_LOAD = "action_load";
     public static final String DATA_LIST = "data_list";
     private Uri uri = MyDataContract.Notes.CONTENT_URI;
-    private MyDataProvider myDataProvider;
 
     public SqLiteRequestService() {
         super("SqLiteRequestService");
@@ -40,7 +36,7 @@ public class SqLiteRequestService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        myDataProvider = new MyDataProvider();
+        MyDataProvider myDataProvider = new MyDataProvider();
         switch (intent.getAction()) {
             case ACTION_INSERT:
                 ArrayList<ContentValues> contentValues = intent.getParcelableArrayListExtra(CONTENT_VALUES);

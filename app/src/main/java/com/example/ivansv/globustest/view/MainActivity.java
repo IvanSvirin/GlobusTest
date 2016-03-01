@@ -1,4 +1,4 @@
-package com.example.ivansv.globustest;
+package com.example.ivansv.globustest.view;
 
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
@@ -8,6 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.example.ivansv.globustest.R;
+import com.example.ivansv.globustest.model.AbstractDataProvider;
+import com.example.ivansv.globustest.model.ExampleDataProvider;
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.decoration.ItemShadowDecorator;
@@ -17,9 +20,6 @@ import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils;
 
 import static com.example.ivansv.globustest.R.drawable.*;
 
-/**
- * Created by ivansv on 26.02.2016.
- */
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -68,10 +68,6 @@ public class MainActivity extends AppCompatActivity {
                 list_divider_h), true));
 
         mRecyclerViewDragDropManager.attachRecyclerView(mRecyclerView);
-
-        // for debugging
-//        animator.setDebug(true);
-//        animator.setMoveDuration(2000);
     }
 
     @Override
@@ -86,20 +82,17 @@ public class MainActivity extends AppCompatActivity {
             mRecyclerViewDragDropManager.release();
             mRecyclerViewDragDropManager = null;
         }
-
         if (mRecyclerView != null) {
             mRecyclerView.setItemAnimator(null);
             mRecyclerView.setAdapter(null);
             mRecyclerView = null;
         }
-
         if (mWrappedAdapter != null) {
             WrapperAdapterUtils.releaseAll(mWrappedAdapter);
             mWrappedAdapter = null;
         }
         mAdapter = null;
         mLayoutManager = null;
-
         super.onDestroy();
     }
 
@@ -108,6 +101,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public AbstractDataProvider getDataProvider() {
-        return new ExampleDataProvider(this);//((DragOnLongPressExampleActivity) getActivity()).getDataProvider();
+        return new ExampleDataProvider(this);
     }
 }

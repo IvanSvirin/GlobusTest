@@ -1,4 +1,4 @@
-package com.example.ivansv.globustest;
+package com.example.ivansv.globustest.view;
 
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.example.ivansv.globustest.R;
+import com.example.ivansv.globustest.model.AbstractDataProvider;
 import com.example.ivansv.globustest.utils.DrawableUtils;
 import com.example.ivansv.globustest.utils.ViewUtils;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;

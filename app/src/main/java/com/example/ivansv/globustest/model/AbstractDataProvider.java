@@ -1,8 +1,5 @@
-package com.example.ivansv.globustest;
+package com.example.ivansv.globustest.model;
 
-/**
- * Created by ivansv on 25.02.2016.
- */
 public abstract class AbstractDataProvider {
 
     public static abstract class Data {
