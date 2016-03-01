@@ -83,7 +83,7 @@ public class MyDataProvider extends ContentProvider {
             case NOTES:
                 qb.setTables(MyDataContract.Notes.TABLE_NAME);
                 qb.setProjectionMap(sNotesProjectionMap);
-                orderBy = MyDataContract.Notes.DEFAULT_SORT_ORDER;
+                orderBy = sortOrder == null ? MyDataContract.Notes.DEFAULT_SORT_ORDER : sortOrder;
                 break;
             case NOTES_ID:
                 qb.setTables(MyDataContract.Notes.TABLE_NAME);
@@ -96,6 +96,7 @@ public class MyDataProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+//        Cursor c = db.query(DatabaseHelper.DATABASE_TABLE_NOTES, null, selection, selectionArgs, null, null, null);
         Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
 //        c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
@@ -164,7 +165,7 @@ public class MyDataProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+//        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 
@@ -189,7 +190,7 @@ public class MyDataProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+//        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 }

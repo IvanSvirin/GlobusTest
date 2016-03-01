@@ -113,9 +113,6 @@ class MyDraggableItemAdapter
         mProvider.moveItem(fromPosition, toPosition);
 
         notifyItemMoved(fromPosition, toPosition);
-        Log.i("INFO", mProvider.getItem(0).getText());
-        Log.i("INFO", mProvider.getItem(1).getText());
-        Log.i("INFO", mProvider.getItem(2).getText());
     }
 
     @Override
