@@ -70,7 +70,7 @@ public class SqLiteRequestService extends IntentService {
                 break;
             case ACTION_LOAD:
                 ArrayList<ExampleDataProvider.ConcreteData> dataList = new ArrayList<>();
-                Cursor cursor = myDataProvider.query(uri, null, null, null, MyDataContract.Notes.SORT_ORDER_BY_PREVIOUS_NOTE_ID);
+                Cursor cursor = myDataProvider.query(uri, null, null, null, null);
                 if (cursor != null) {
                     if (cursor.moveToFirst()) {
                         int sqlIdIndex = cursor.getColumnIndex(MyDataContract.Notes._ID);

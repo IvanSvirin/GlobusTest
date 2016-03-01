@@ -280,10 +280,20 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
         public void onReceiveResult(int resultCode, Bundle data) {
             ArrayList<ConcreteData> receivedList = data.getParcelableArrayList(SqLiteRequestService.DATA_LIST);
             if (receivedList != null) {
-                for (ConcreteData cd : receivedList) {
-                    mData.add(cd);
+                int link = 0;
+                while (receivedList.size() > 0) {
+                    for (int i = 0; i < receivedList.size(); i++) {
+                        if (Integer.parseInt(receivedList.get(i).getPrevSqlId()) == link) {
+                            mData.add(receivedList.get(i));
+                            link = Integer.parseInt(receivedList.get(i).getSqlId());
+                            receivedList.remove(i);
+                            break;
+                        }
+                    }
                 }
             }
             myResultReceiver.setReceiver(null);
         }
+
+
 }
