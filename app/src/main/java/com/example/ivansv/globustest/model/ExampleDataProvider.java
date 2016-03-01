@@ -36,13 +36,13 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
                     for (int j = 0; j < atoz.length(); j++) {
                         final long id = mData.size();
                         final int viewType = 0;
-                        final String text = Character.toString(atoz.charAt(j));
+                        final String text = String.valueOf(id) +  " - " + Character.toString(atoz.charAt(j));
                         final int swipeReaction = RecyclerViewSwipeManager.REACTION_CAN_SWIPE_UP |
                                 RecyclerViewSwipeManager.REACTION_CAN_SWIPE_DOWN;
                         mData.add(new ConcreteData(id, viewType, text, swipeReaction, String.valueOf(id + 1L),
                                 String.valueOf(j + i * atoz.length())));
                         ContentValues cVal = new ContentValues();
-                        cVal.put(MyDataContract.Notes.COLUMN_NAME_NOTE_TEXT, id + " - " + text);
+                        cVal.put(MyDataContract.Notes.COLUMN_NAME_NOTE_TEXT, text);
                         cVal.put(MyDataContract.Notes.COLUMN_NAME_PREVIOUS_NOTE_ID, String.valueOf(j + i * atoz.length()));
                         cv.add(cVal);
                     }
@@ -155,7 +155,7 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
     public void removeItem(int position) {
     }
 
-    public static final class ConcreteData extends Data implements Parcelable{
+    public static final class ConcreteData extends Data implements Parcelable {
 
         private long id;
         private String text;
@@ -172,7 +172,7 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
             this.viewType = viewType;
             this.sqlId = sqliteId;
             this.prevSqlId = prevSqlId;
-            this.text = makeText(id, text, swipeReaction);
+            this.text = text;
         }
 
         protected ConcreteData(Parcel in) {
@@ -195,15 +195,6 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
                 return new ConcreteData[size];
             }
         };
-
-        private static String makeText(long id, String text, int swipeReaction) {
-            final StringBuilder sb = new StringBuilder();
-            sb.append(id);
-            sb.append(" - ");
-            sb.append(text);
-
-            return String.valueOf(sb);
-        }
 
         @Override
         public boolean isSectionHeader() {
@@ -276,24 +267,28 @@ public class ExampleDataProvider extends AbstractDataProvider implements MyResul
         }
     }
 
-        @Override
-        public void onReceiveResult(int resultCode, Bundle data) {
-            ArrayList<ConcreteData> receivedList = data.getParcelableArrayList(SqLiteRequestService.DATA_LIST);
-            if (receivedList != null) {
-                int link = 0;
-                while (receivedList.size() > 0) {
-                    for (int i = 0; i < receivedList.size(); i++) {
-                        if (Integer.parseInt(receivedList.get(i).getPrevSqlId()) == link) {
-                            mData.add(receivedList.get(i));
-                            link = Integer.parseInt(receivedList.get(i).getSqlId());
-                            receivedList.remove(i);
-                            break;
-                        }
+    @Override
+    public void onReceiveResult(int resultCode, Bundle data) {
+        ArrayList<ConcreteData> receivedList = data.getParcelableArrayList(SqLiteRequestService.DATA_LIST);
+        int swipeReaction = RecyclerViewSwipeManager.REACTION_CAN_SWIPE_UP |
+                RecyclerViewSwipeManager.REACTION_CAN_SWIPE_DOWN;
+        int viewType = 0;
+        long id;
+        if (receivedList != null) {
+            int link = 0;
+            while (receivedList.size() > 0) {
+                for (int i = 0; i < receivedList.size(); i++) {
+                    if (Integer.parseInt(receivedList.get(i).getPrevSqlId()) == link) {
+                        id = mData.size();
+                        mData.add(new ConcreteData(id, viewType, receivedList.get(i).getText(), swipeReaction,
+                                receivedList.get(i).getSqlId(), receivedList.get(i).getPrevSqlId()));
+                        link = Integer.parseInt(receivedList.get(i).getSqlId());
+                        receivedList.remove(i);
+                        break;
                     }
                 }
             }
-            myResultReceiver.setReceiver(null);
         }
-
-
+        myResultReceiver.setReceiver(null);
+    }
 }
