@@ -37,12 +37,14 @@ public class SqLiteRequestService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         MyDataProvider myDataProvider = new MyDataProvider();
         switch (intent.getAction()) {
+            // background "create operation" - creating new records in database
             case ACTION_INSERT:
                 ArrayList<ContentValues> contentValues = intent.getParcelableArrayListExtra(CONTENT_VALUES);
                 for (ContentValues cv : contentValues) {
                     myDataProvider.insert(uri, cv);
                 }
                 break;
+            // background "update operation" - updating records, that changed due to changes in view
             case ACTION_MOVE:
                 String movedSqlId = intent.getStringExtra(MOVED_SQL_ID);
                 String wasAfterMovedSqlId = intent.getStringExtra(WAS_AFTER_MOVED_SQL_ID);
@@ -67,6 +69,7 @@ public class SqLiteRequestService extends IntentService {
                             new String[]{becameAfterMovedSqlId});
                 }
                 break;
+            // background "read operation" - data from database is loading, when application starts
             case ACTION_LOAD:
                 ArrayList<ExampleDataProvider.ConcreteData> dataList = new ArrayList<>();
                 Cursor cursor = myDataProvider.query(uri, null, null, null, null);

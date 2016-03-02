@@ -38,12 +38,12 @@ public class MyDataProvider extends ContentProvider {
     private static class DatabaseHelper extends SQLiteOpenHelper {
         private static final String DATABASE_NAME = "mynotes";
         public static final String DATABASE_TABLE_NOTES = MyDataContract.Notes.TABLE_NAME;
-        public static final String KEY_ROWID = "_id";
+        public static final String KEY_ROW_ID = "_id";
         public static final String KEY_NOTE_TEXT = "note_text";
         public static final String KEY_PREVIOUS_NOTE_ID = "previous_note_id";
         private static final String DATABASE_CREATE_TABLE_NOTES =
                 "create table " + DATABASE_TABLE_NOTES + " ("
-                        + KEY_ROWID + " integer primary key autoincrement, "
+                        + KEY_ROW_ID + " integer primary key autoincrement, "
                         + KEY_NOTE_TEXT + " string , "
                         + KEY_PREVIOUS_NOTE_ID + " string );";
 

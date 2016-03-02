@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        //noinspection ConstantConditions
+        // noinspection ConstantConditions
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mLayoutManager = new LinearLayoutManager(this);
 
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setItemAnimator(animator);
 
         // additional decorations
-        //noinspection StatementWithEmptyBody
+        // noinspection StatementWithEmptyBody
         if (supportsViewElevation()) {
             // Lollipop or later has native drop shadow feature. ItemShadowDecorator is not required.
         } else {
